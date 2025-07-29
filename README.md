@@ -1,83 +1,57 @@
-# 📊 NSE Daily Auto Update
+# 📈 NSE Daily Market Dashboard
 
-Welcome to the **Nifty 50 Auto Update** project!  
-This repository automatically fetches daily stock market data from NSE India and visualizes it using interactive financial charts. The project is scheduled to refresh every 1 hour between **9:30 AM to 4:00 PM IST** using **GitHub Actions**.
+This project automates fetching, processing, and visualizing daily Nifty 50 data from NSE India using Python and GitHub Actions.
 
 ---
 
-## 📆 Data Coverage
+## ⚡ Features
 
-- **From:** 2024-07-01  
-- **To:** 2025-07-29  
-- 🕒 **Last Updated:** 2025-07-29 15:00:00 (IST)
+- 🔁 Auto-updates every hour between **9:30 AM – 4:00 PM IST**
+- 📥 Scrapes latest market data from NSE
+- 📊 Generates interactive financial charts:
+  - SMA Overlay
+  - Candlestick Chart
+  - MACD + RSI Chart
+- ☁️ GitHub-hosted; no local setup required
 
-> *Note: These values are dynamically updated every hour during market hours.*
+---
+
+## 📂 Output Visualizations
+
+The charts are saved as **interactive HTML files** in the [`outputs/`](outputs/) folder:
+
+| Chart Type           | Description                              | Link to View |
+|----------------------|------------------------------------------|--------------|
+| 📈 Line + SMA Chart  | Closing price with SMA-20 & SMA-50       | [Open](outputs/line_with_sma.html) |
+| 📊 Candlestick Chart | OHLC price visualization with wicks      | [Open](outputs/candlestick.html) |
+| 🧠 MACD + RSI Chart  | Momentum indicators & overbought zones   | [Open](outputs/macd_rsi.html) |
+
+> 💡 You can download and open these `.html` files locally to view them interactively.
 
 ---
 
 ## 📁 Data Source
 
-The raw dataset is sourced from [NSE India](https://www.nseindia.com/) and saved in CSV format for reproducibility and audit trails.
-
-- CSV Location: [`data/nifty.csv`](data/nifty.csv)
-
----
-
-## 📈 Visualizations
-
-### 🔹 1. Line Chart with SMA (Simple Moving Averages)
-
-This chart shows Nifty 50 closing prices along with two trend lines:
-- **SMA-20** (Short-term)
-- **SMA-50** (Medium-term)
-
-![Line SMA Chart](outputs/line_with_sma.png)
+- **Provider:** [NSE India](https://www.nseindia.com/)
+- **CSV:** [`data/nifty.csv`](data/nifty.csv)
 
 ---
 
-### 🔹 2. Candlestick Chart
+## 🔄 Automation via GitHub Actions
 
-Visualizes Open, High, Low, and Close prices per trading day.
+This repo includes a scheduled GitHub Action (`.github/workflows/daily_update.yml`) that:
 
-![Candlestick Chart](outputs/candlestick.png)
-
----
-
-### 🔹 3. MACD & RSI Indicator Chart
-
-- **MACD** (Moving Average Convergence Divergence): Momentum trend-following indicator
-- **RSI** (Relative Strength Index): Measures overbought/oversold conditions
-
-![MACD RSI Chart](outputs/macd_rsi.png)
+1. Runs every hour (9:30–16:00 IST)
+2. Executes `nse_scraper.py`
+3. Updates data and plots in `/outputs`
+4. Regenerates `README.md` (optional)
 
 ---
 
-## ⚙️ Automation Workflow
+## 🚀 Run Locally (Optional)
 
-This project is fully automated using **GitHub Actions**. It runs a workflow defined in `.github/workflows/update.yml` that:
-
-1. Fetches latest Nifty 50 CSV data
-2. Recalculates technical indicators (SMA, MACD, RSI)
-3. Regenerates plots
-4. Updates this `README.md` file with the latest charts and metadata
-5. Pushes changes back to GitHub automatically
-
----
-
-## 🧰 Tech Stack
-
-- Python 3.11
-- `pandas`, `plotly`, `ta` (Technical Analysis library)
-- GitHub Actions
-- NSE data API via CSV scraping
-
----
-
-## ⭐ Like this Project?
-
-If you found this helpful, please consider ⭐ starring the repo to support ongoing development.
-
----
-
-**Author:** [Nachiket Dixit](https://github.com/nachidixit)  
-**License:** MIT
+```bash
+git clone https://github.com/nachidixit/NSE_Daily.git
+cd NSE_Daily
+pip install -r requirements.txt
+python nse_scraper.py
