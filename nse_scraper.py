@@ -2,37 +2,48 @@ import pandas as pd
 import requests
 from io import StringIO
 from datetime import datetime
+import os
 
 def fetch_data():
     today = datetime.now().strftime('%d-%m-%Y')
-    url = f'https://www1.nseindia.com/content/nsccl/fao_participant_oi_{today}.csv'
+    url = f'https://www.nseindia.com/content/nsccl/fao_participant_oi_{today}.csv'
     
     headers = {
-        'User-Agent': 'Mozilla/5.0',
-        'Accept': 'text/html,application/xhtml+xml,application/xml',
-        'Accept-Encoding': 'gzip, deflate',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36',
         'Accept-Language': 'en-US,en;q=0.9',
-        'Connection': 'keep-alive',
-        'Referer': 'https://www1.nseindia.com/'
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive'
     }
 
-    response = requests.get(url, headers=headers)
-    response.encoding = 'utf-8'
+    session = requests.Session()
+    session.headers.update(headers)
 
-    if "<html" in response.text.lower():
-        print("❌ Received HTML instead of CSV. Possible access issue or invalid date.")
-        with open("data/error_response.html", "w", encoding="utf-8") as f:
-            f.write(response.text)
-        return
-
+    # Step 1: Get cookies from homepage
     try:
+        session.get("https://www.nseindia.com", timeout=10)
+    except Exception as e:
+        print("⚠ Warning: Could not fetch homepage cookies:", e)
+
+    # Step 2: Download CSV
+    try:
+        response = session.get(url, timeout=15)
+        response.encoding = 'utf-8'
+
+        if "<html" in response.text.lower():
+            print("❌ Received HTML instead of CSV. Saving error page.")
+            os.makedirs("data", exist_ok=True)
+            with open("data/error_response.html", "w", encoding="utf-8") as f:
+                f.write(response.text)
+            return
+
         df = pd.read_csv(StringIO(response.text), skiprows=1, on_bad_lines='skip')
+        os.makedirs("data", exist_ok=True)
         df.to_csv('data/nifty.csv', index=False)
         print("✅ Data fetched and saved to 'data/nifty.csv'.")
-        
+
         generate_readme(df)
     except Exception as e:
-        print("❌ Failed to parse CSV:", e)
+        print("❌ Failed to fetch data from NSE:", e)
 
 def generate_readme(df):
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -42,7 +53,7 @@ def generate_readme(df):
     with open("README.md", "w", encoding="utf-8") as f:
         f.write(f"""# 📊 NSE Daily Auto Update
 
-This GitHub repository auto-fetches **Nifty 50** data daily from NSE and plots visual analytics...
+This GitHub repository auto-fetches **Nifty 50** data daily from NSE and plots visual analytics.
 
 ## 📆 Data Range  
 **From:** {start_date}  
